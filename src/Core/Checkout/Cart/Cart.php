@@ -53,7 +53,12 @@ class Cart extends Struct
      */
     protected $transactions;
 
-    public function __construct(string $name, string $token)
+    /**
+     * @var string|null
+     */
+    protected $reservedOrderNumber;
+
+    public function __construct(string $name, string $token, ?string $reservedOrderNumber)
     {
         $this->name = $name;
         $this->token = $token;
@@ -62,6 +67,7 @@ class Cart extends Struct
         $this->errors = new ErrorCollection();
         $this->deliveries = new DeliveryCollection();
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
+        $this->reservedOrderNumber = $reservedOrderNumber;
     }
 
     public function getName(): string
@@ -200,5 +206,15 @@ class Cart extends Struct
     public function getShippingCosts(): CalculatedPrice
     {
         return $this->deliveries->getShippingCosts()->sum();
+    }
+
+    public function getReservedOrderNumber(): ?string
+    {
+        return $this->reservedOrderNumber;
+    }
+
+    public function setReservedOrderNumber(?string $reservedOrderNumber)
+    {
+        $this->reservedOrderNumber = $reservedOrderNumber;
     }
 }
