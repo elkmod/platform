@@ -7,9 +7,12 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
+use Shopware\Core\Checkout\Order\Messenger\Message\QueueOrderMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class OrderPersister implements OrderPersisterInterface
 {
@@ -23,10 +26,16 @@ class OrderPersister implements OrderPersisterInterface
      */
     private $converter;
 
-    public function __construct(EntityRepositoryInterface $repository, OrderConverter $converter)
+    /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
+
+    public function __construct(EntityRepositoryInterface $repository, OrderConverter $converter, MessageBusInterface $messageBus)
     {
         $this->repository = $repository;
         $this->converter = $converter;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -48,8 +57,12 @@ class OrderPersister implements OrderPersisterInterface
             throw new EmptyCartException();
         }
 
-        $order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
+        $this->messageBus->dispatch(new QueueOrderMessage($cart, $context));
 
-        return $this->repository->create([$order], $context->getContext());
+        //$order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
+
+        // return $this->repository->create([$order], $context->getContext());
+
+        return new EntityWrittenContainerEvent($context->getContext(), new NestedEventCollection(), []);
     }
 }

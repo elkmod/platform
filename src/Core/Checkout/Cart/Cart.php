@@ -58,7 +58,7 @@ class Cart extends Struct
      */
     protected $reservedOrderNumber;
 
-    public function __construct(string $name, string $token, ?string $reservedOrderNumber)
+    public function __construct(string $name, string $token, ?string $reservedOrderNumber = null)
     {
         $this->name = $name;
         $this->token = $token;

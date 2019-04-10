@@ -27,5 +27,6 @@ class Checkout extends Bundle
         $loader->load('discount_surcharge.xml');
         $loader->load('rule.xml');
         $loader->load('promotion.xml');
+        $loader->load('messenger.xml');
     }
 }
