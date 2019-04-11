@@ -157,9 +157,13 @@ class OrderConverter
             $data['id'] = $idStruct->getId();
         }
 
-        $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-            OrderDefinition::getEntityName(), $context->getContext(), $context->getSalesChannel()->getId()
-        );
+        $orderNumber = $cart->getReservedOrderNumber();
+        if ($orderNumber === null) {
+            $orderNumber = $this->numberRangeValueGenerator->getValue(
+                OrderDefinition::getEntityName(), $context->getContext(), $context->getSalesChannel()->getId()
+            );
+        }
+        $data['orderNumber'] = $orderNumber;
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
 

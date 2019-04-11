@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartService
@@ -55,18 +56,25 @@ class CartService
      */
     private $cartRuleLoader;
 
+    /**
+     * @var NumberRangeValueGeneratorInterface
+     */
+    private $numberRangeValueGenerator;
+
     public function __construct(
         Enrichment $enrichment,
         Processor $processor,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister,
-        CartRuleLoader $cartRuleLoader
+        CartRuleLoader $cartRuleLoader,
+        NumberRangeValueGeneratorInterface $numberRangeValueGenerator
     ) {
         $this->processor = $processor;
         $this->persister = $persister;
         $this->orderPersister = $orderPersister;
         $this->enrichment = $enrichment;
         $this->cartRuleLoader = $cartRuleLoader;
+        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
     }
 
     public function setCart(Cart $cart): void
@@ -152,6 +160,11 @@ class CartService
 
     public function order(Cart $cart, SalesChannelContext $context): string
     {
+        $orderNumber = $this->numberRangeValueGenerator->getValue(
+            OrderDefinition::getEntityName(), $context->getContext(), $context->getSalesChannel()->getId()
+        );
+        $cart->setReservedOrderNumber($orderNumber);
+
         $calculatedCart = $this->calculate($cart, $context);
         $events = $this->orderPersister->persist($calculatedCart, $context);
 
