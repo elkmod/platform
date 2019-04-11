@@ -13,14 +13,13 @@ class QueueOrderMessage
     private $cart;
 
     /**
-     * @var SalesChannelContext
+     * @var string
      */
-    private $context;
+    private $contextData;
 
-    public function __construct(Cart $cart, SalesChannelContext $context)
+    public function __construct(Cart $cart)
     {
         $this->cart = $cart;
-        $this->context = $context;
     }
 
     public function getCart(): Cart
@@ -33,13 +32,31 @@ class QueueOrderMessage
         $this->cart = $cart;
     }
 
-    public function getContext(): SalesChannelContext
+    /**
+     * @return string
+     */
+    public function getContextData(): string
     {
-        return $this->context;
+        return $this->contextData;
     }
 
-    public function setContext(SalesChannelContext $context)
+    /**
+     * @param string $contextData
+     */
+    public function setContextData(string $contextData): void
     {
-        $this->context = $context;
+        $this->contextData = $contextData;
+    }
+
+    public function withContext(SalesChannelContext $context): QueueOrderMessage
+    {
+        $this->contextData = serialize($context);
+
+        return $this;
+    }
+
+    public function readContext(): SalesChannelContext
+    {
+        return unserialize($this->contextData);
     }
 }

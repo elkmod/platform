@@ -57,7 +57,10 @@ class OrderPersister implements OrderPersisterInterface
             throw new EmptyCartException();
         }
 
-        $this->messageBus->dispatch(new QueueOrderMessage($cart, $context));
+        $message = new QueueOrderMessage($cart);
+        $message->withContext($context);
+
+        $this->messageBus->dispatch($message);
 
         //$order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
 
