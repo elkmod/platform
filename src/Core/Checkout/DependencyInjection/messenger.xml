@@ -7,6 +7,8 @@
     <services>
         <service id="Shopware\Core\Checkout\Order\Messenger\Handler\QueueOrderMessageHandler">
             <tag name="messenger.message_handler"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
         </service>
     </services>
 </container>

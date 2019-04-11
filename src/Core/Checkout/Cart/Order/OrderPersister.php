@@ -62,10 +62,6 @@ class OrderPersister implements OrderPersisterInterface
 
         $this->messageBus->dispatch($message);
 
-        //$order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
-
-        // return $this->repository->create([$order], $context->getContext());
-
         return new EntityWrittenContainerEvent($context->getContext(), new NestedEventCollection(), []);
     }
 }
